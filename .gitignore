@@ -1,0 +1,8 @@
+password_usernames.txt
+__pycache__
+.vscode
+not code/
+venv/
+test.py 
+
+
