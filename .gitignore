@@ -4,5 +4,7 @@ __pycache__
 not code/
 venv/
 test.py 
-
+received files/
+received voices/
+sent voices/
 

@@ -17,8 +17,16 @@ client.connect(('127.0.0.1',55555))
 
 window=Tk()
 save_as_list=[]
+local_save_list=[]
 paused = False
 recording=True
+
+if not os.path.exists('received files/'):
+    os.mkdir('received files')
+if not os.path.exists('received voices/'):
+    os.mkdir('received voices')
+if not os.path.exists('sent voices/'):
+    os.mkdir('sent voices')
 
 
 
@@ -64,22 +72,22 @@ def main(): # function for login
                 elif message == 'file':
                     c+=1
                     filename=client.recv(1024).decode('latin-1')
-
+                    local_save_list.append(filename)
                     file_pas=filename.split('.')
 
                     i=1
                     check_v_file=True
 
                     while check_v_file:
-                        if os.path.exists(f'received_file_{i}.{file_pas[len(file_pas)-1]}'):
+                        if os.path.exists(f'received files/received_file_{i}.{file_pas[len(file_pas)-1]}'):
                             i+=1
                         else:
                             check_v_file=False
 
-                    save_as = f"received_file_{i}.{file_pas[len(file_pas)-1]}"
+                    save_as = f"received files\\received_file_{i}.{file_pas[len(file_pas)-1]}"
                     save_as_list.append(save_as)
-                    def file_open(num):
-                        filename= save_as_list[num]
+                    client_check=client.recv(1024).decode('latin-1')
+                    def file_open(filename):
                         webbrowser.open(filename)
                 # Receive the file size from the client
                     file_size = int(float(client.recv(1024).decode('utf-8')))
@@ -90,61 +98,62 @@ def main(): # function for login
                         remaining_bytes = file_size - len(file_data)
                         file_data += client.recv(remaining_bytes)
                 # Save the received file to disk
-                    with open(save_as, "wb") as file:
-                        file.write(file_data)
-                    client_check=client.recv(1024).decode('latin-1')
+                    if client_check!=nickname:
+                        with open(save_as, "wb") as file:
+                            file.write(file_data)
+                    
                     txt.insert(END,'\n')
                     text_btn=f"File received successfully{c}."
-                    button = Button(
-                        root,
-                        text=text_btn,
-                        padx=2,
-                        pady=2,
-                        bd=1,
-                        highlightthickness=0,
-                        font='timesnewroman 14',
-                        command= lambda m=c-1: file_open(m)
-                    )
+                    if client_check==nickname:
+                        button = Button(
+                            root,
+                            text='sent file',
+                            padx=2,
+                            pady=2,
+                            bd=1,
+                            highlightthickness=0,
+                            font='timesnewroman 14',
+                            bg='#5EE87D',
+                            command= lambda m=c-1: file_open(local_save_list[m])
+                        )
+                    else:
+                        button = Button(
+                            root,
+                            text=text_btn,
+                            padx=2,
+                            pady=2,
+                            bd=1,
+                            highlightthickness=0,
+                            font='timesnewroman 14',
+                            command= lambda m=c-1: file_open(save_as_list[m])
+                        )
                     txt.window_create(END, window=button)
                     txt.insert(END,'\n')
                     step_message+=2
-                    if client_check==nickname:
-                        button.config(bg='#5EE87D' , text='sent file')
 
                 elif message=='voice':
                     c+=1
                     filename=client.recv(1024).decode('latin-1')
-
+                    local_save_list.append(filename)
                     file_pas=filename.split('.')
+                    
                     i=1
                     check_v_file=True
 
                     while check_v_file:
-                        if os.path.exists(f'received_file_{i}.{file_pas[len(file_pas)-1]}'):
+                        if os.path.exists(f'received voices/received_file_{i}.{file_pas[len(file_pas)-1]}'):
                             i+=1
                         else:
                             check_v_file=False
 
-                    save_as = f"received_file_{i}.{file_pas[len(file_pas)-1]}"
+                    save_as = f"received voices/received_file_{i}.{file_pas[len(file_pas)-1]}"
                     save_as_list.append(save_as)
-
-                    def play_voice(num):
-                        filename=save_as_list[num]
+                    client_check=client.recv(1024).decode('latin-1')
+                    def play_voice(filename):
+                        
                         global paused
                         # paused = False    # global to track if the audio is paused
-                        def on_press(key):
-                            global paused
-                            if key == keyboardnput.Key.space:
-                                if stream.is_stopped():     # time to play audio
-                                    print ('play pressed')
-                                    stream.start_stream()
-                                    paused = False
-                                    return False
-                                elif stream.is_active():   # time to pause audio
-                                    stream.stop_stream()
-                                    paused = True
-                                    return False
-                            return False
+
                         
                         # you audio here
                         wf = wave.open(filename, 'rb')
@@ -171,7 +180,7 @@ def main(): # function for login
                             stream.start_stream()
                         if paused==False:
                             stream.stop_stream()
-
+                        paused = False
 
 
                         # stop stream
@@ -184,14 +193,14 @@ def main(): # function for login
 
 
 
-                    def handel(num):
+                    def handel(filename):
                         global paused
                         if paused:
                             paused = False
                         else:
                             paused = True
                             # choose_voice.config(text='record')
-                            threading.Thread(target=lambda : play_voice(num)).start()
+                            threading.Thread(target=lambda : play_voice(filename)).start()
                         
                     # Receive the file size from the client
                     file_size = int(client.recv(1024).decode('utf-8'))
@@ -204,26 +213,39 @@ def main(): # function for login
                         file_data += client.recv(remaining_bytes)
 
                     # Save the received file to disk
-                    with open(save_as, "wb") as file:
-                        file.write(file_data)
-                    client_check=client.recv(1024).decode('latin-1')
+                    if client_check!=nickname:
+                        with open(save_as, "wb") as file:
+                            file.write(file_data)
+                        
                     txt.insert(END,'\n')
                     text_btn=f"voice received successfully{c}."
-                    button =Button(
-                        root,
-                        text=text_btn,
-                        padx=2,
-                        pady=2,
-                        bd=1,
-                        highlightthickness=0,
-                        font='timesnewroman 14',
-                        command= lambda m=c-1: handel(m)
-                    )
+                    if client_check==nickname:
+                        button = Button(
+                            root,
+                            text='sent voice',
+                            padx=2,
+                            pady=2,
+                            bd=1,
+                            highlightthickness=0,
+                            font='timesnewroman 14',
+                            bg='#5EE87D',
+                            command= lambda m=c-1: handel(local_save_list[m])
+                        )
+                    else:
+                        button = Button(
+                            root,
+                            text=text_btn,
+                            padx=2,
+                            pady=2,
+                            bd=1,
+                            highlightthickness=0,
+                            font='timesnewroman 14',
+                            command= lambda m=c-1: handel(save_as_list[m])
+                        )
+                    
                     txt.window_create(END, window=button)
                     txt.insert(END,'\n')
                     step_message+=2
-                    if client_check==nickname:
-                        button.config(bg='#5EE87D' , text=f'sent voice')
                 elif message!='':
                     client_check=client.recv(1024).decode('latin-1')
                     txt.insert(END,'\n')
@@ -274,11 +296,21 @@ def main(): # function for login
         def record():
             global recording
             client.send('voice'.encode('ascii'))
+            time.sleep(0.1)
             format = pyaudio.paInt16
             channels = 1
             rate = 44100
             chunk = 1024
-            filename= 'voice2.wav'
+            i=1
+            check_v_file=True
+
+            while check_v_file:
+                if os.path.exists(f'sent voices/sent_file_{i}.wav'):
+                    i+=1
+                else:
+                    check_v_file=False
+            filename= f'sent voices/sent_file_{i}.wav'
+            
 
             audio = pyaudio.PyAudio()
             stream = audio.open(format=format , channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
@@ -308,17 +340,21 @@ def main(): # function for login
             # Open the file in binary mode
             
             client.send(filename.encode('ascii'))
+            time.sleep(0.1)
+            client.send(nickname.encode('ascii'))
+            time.sleep(0.1)
             with open(filename, "rb") as file:
                 # Read the file content
                 file_data = file.read()
 
             # Send the file size to the server
             client.sendall(str(len(file_data)).encode('utf-8'))
-
+            time.sleep(0.1)
             # Send the file content to the server
             client.sendall(file_data)
+            
 
-            client.send(nickname.encode('ascii'))
+            
 
         def handel():
             global recording
@@ -335,18 +371,24 @@ def main(): # function for login
 
 
                 client.send('file'.encode('ascii'))
+                time.sleep(0.1)
             # Open the file in binary mode
                 
                 client.send(filename.encode('ascii'))
+                time.sleep(0.1)
+                client.send(nickname.encode('ascii'))
+                time.sleep(0.1)
                 with open(filename, "rb") as file:
                 # Read the file content
                     file_data = file.read()
 
                 client.send(str(len(file_data)).encode('utf-8'))
+                time.sleep(0.1)
             # Send the file content to the server
                 client.send(file_data)
                 
-                client.send(nickname.encode('ascii'))
+                
+                
 
 
         
