@@ -4,7 +4,6 @@ import threading
 import webbrowser
 import pass_Tk
 import easygui
-import keyboard
 import wave
 import pyaudio
 import os
@@ -33,6 +32,8 @@ if not os.path.exists('sent voices/'):
 
 def record(btn_choose_voice , nickname):
     global recording_bol
+    client.send(f'{nickname}/message/file received successfully/sent voice/'.encode('ascii'))
+    time.sleep(0.1)
     client.send('voice'.encode('ascii'))
     time.sleep(0.1)
     format = pyaudio.paInt16
@@ -129,6 +130,26 @@ def main():
         nickname=user_input.get()
         if check_nickname == True:
             client.send(nickname.encode('ascii'))
+            
+        
+            filename=client.recv(1024).decode('latin-1')
+        # Receive the file size from the client
+            file_size = int(float(client.recv(1024).decode('utf-8')))
+
+        # Receive the file content from the client
+            file_data = b""
+            while len(file_data) < file_size:
+                remaining_bytes = file_size - len(file_data)
+                file_data += client.recv(remaining_bytes)
+
+            with open(filename, "wb") as file:
+                file.write(file_data)
+
+
+
+
+
+
             check_nickname=False
         # GUI
         root = Tk()
@@ -139,6 +160,7 @@ def main():
         FONT_BOLD = "Helvetica 13 bold"
         
         window.destroy() #close window
+
 
 
 
@@ -193,6 +215,39 @@ def main():
         )
 
         choose_voice.grid(row= 2 , column=3 , sticky=(W,E))
+
+        with open('log.txt' , 'r') as f:
+            while True:
+                line=f.readline()
+                line1=line.split('/')
+                if line =='':
+                    break
+                elif line1[0]==nickname:
+                    txt.insert(END,'\n')
+                    lbl =Label(
+                        root,
+                        text=f'{line1[3]}',
+                        padx=2,
+                        pady=2,
+                        bd=1,
+                        bg='#5EE87D',
+                        highlightthickness=0,
+                        font='timesnewroman 14',
+                    )
+                    txt.window_create(END, window=lbl)
+                    txt.insert(END,'\n')
+                else:
+                    txt.insert(END,'\n')
+                    lbl =Label(
+                        root,
+                        text=line1[2],
+                        padx=2,
+                        pady=2,
+                        bd=1,
+                        font='timesnewroman 14',
+                    )
+                    txt.window_create(END, window=lbl)
+                    txt.insert(END,'\n')
 
 
         receive_thread = threading.Thread(target=lambda : receive(nickname , txt , root , client , c , object))

@@ -17,6 +17,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
         
         message= client.recv(1024).decode('latin-1')
         if message == 'file':
+
             c+=1
             filename=client.recv(1024).decode('latin-1')
             file_pas=filename.split('.')
@@ -52,7 +53,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
             object_list.append(file)
             
             txt.insert(END,'\n')
-            text_btn=f"File received successfully{c}."
+            text_btn=f"File received successfully."
             if client_check==nickname:
                 button = Button(
                     root,
@@ -78,6 +79,9 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                 )
             txt.window_create(END, window=button)
             txt.insert(END,'\n')
+
+            # with open('log.txt', 'a') as file:
+            #     file.write(f'{nickname}/{text_btn}/sent file/\n')
             
 
         elif message=='voice':
@@ -135,7 +139,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
             object_list.append(voice)
                 
             txt.insert(END,'\n')
-            text_btn=f"voice received successfully{c}."
+            text_btn=f"voice received successfully."
             if client_check==nickname:
                 button = Button(
                     root,
@@ -157,12 +161,14 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     bd=1,
                     highlightthickness=0,
                     font='timesnewroman 14',
-                    command= lambda m=voice: handel(m)
+                    command= lambda m=voice , c=c-1: handel(m , c)
                 )
             
             txt.window_create(END, window=button)
             txt.insert(END,'\n')
             
+            # with open('log.txt', 'a') as file:
+            #     file.write(f'{nickname}/{text_btn}/sent voice/\n')
         else:
             client_check=client.recv(1024).decode('latin-1')
             if message=="":
@@ -184,6 +190,9 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     lbl.config(bg='#5EE87D' ,)
                 else:
                     lbl.config(text=f'{client_check}:{message}')
+                
+                # with open('log.txt', 'a') as file:
+                #     file.write(f'{nickname}/{client_check}:{message}/{message}/\n')
 
 
 class Received():
@@ -256,10 +265,15 @@ def write(entry , nickname , client): # Send function
 
         if "file" not  in client_message and 'voice' not in client_message:
             message= f'{client_message}'
+            client.send(f'{nickname}/message/{nickname}:{message}/{message}/'.encode('ascii'))
+            time.sleep(0.05)
             client.send(message.encode('ascii'))
+            time.sleep(0.05)
             client.send(nickname.encode('ascii'))
             with open('client_messages.txt' , 'a') as writer:
                 writer.write(f'{message}\n')
+            
+            
                 
         entry.delete(0, END)
         break
@@ -267,8 +281,8 @@ def write(entry , nickname , client): # Send function
 def send_file(nickname , client):
     filename = easygui.fileopenbox()
     if filename!=None:
-
-
+        client.send(f'{nickname}/message/file received successfully/sent file/'.encode('ascii'))
+        time.sleep(0.1)
         client.send('file'.encode('ascii'))
         time.sleep(0.1)
     # Open the file in binary mode
