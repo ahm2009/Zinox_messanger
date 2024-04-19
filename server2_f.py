@@ -20,11 +20,11 @@ def handle(client):
 
         try:
             message = client.recv(1024)
-            list_message = message.decode('ascii').split('/')
+            list_message = message.decode('utf-8').split('/')
 
             if list_message[1]=='message':
-                with open('log.txt', 'a')as file:
-                    file.write(message.decode('ascii') + '\n')
+                with open('log.txt', 'a' , encoding='utf-8')as file:
+                    file.write(message.decode('utf-8') + '\n')
             else:
                 broadcast(message)         
         except IndexError: 
@@ -45,16 +45,16 @@ def receive():
         client, address = server.accept()
         print(f'connected with {str(address)}')
 
-        # client.send('NICK'.encode('ascii'))
-        nickname=client.recv(1024).decode('ascii')
+        # client.send('NICK'.encode('utf-8'))
+        nickname=client.recv(1024).decode('utf-8')
         nicknames.append(nickname)
         clients.append(client)
 
         print(f'NICKname of the client is {nickname}!')
-        # broadcast(f'{nickname} joined the chat!'.encode('ascii'))
-        # client.send("Connected to the server!".encode('ascii'))
+        # broadcast(f'{nickname} joined the chat!'.encode('utf-8'))
+        # client.send("Connected to the server!".encode('utf-8'))
 
-        client.send('log.txt'.encode('ascii'))
+        client.send('log.txt'.encode('utf-8'))
         time.sleep(0.1)
         with open('log.txt', "rb") as file:
         # Read the file content

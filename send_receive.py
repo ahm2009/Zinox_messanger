@@ -15,11 +15,11 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
 
     while True:  
         
-        message= client.recv(1024).decode('latin-1')
+        message= client.recv(1024).decode('utf-8')
         if message == 'file':
 
             c+=1
-            filename=client.recv(1024).decode('latin-1')
+            filename=client.recv(1024).decode('utf-8')
             file_pas=filename.split('.')
 
             i=1
@@ -32,7 +32,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     check_v_file=False
 
             save_as = f"received files\\received_file_{i}.{file_pas[len(file_pas)-1]}"
-            client_check=client.recv(1024).decode('latin-1')
+            client_check=client.recv(1024).decode('utf-8')
             def file_open(filename):
                 webbrowser.open(filename)
         # Receive the file size from the client
@@ -60,10 +60,10 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     text='sent file',
                     padx=2,
                     pady=2,
-                    bd=1,
                     highlightthickness=0,
                     font='timesnewroman 14',
-                    bg='#5EE87D',
+                    bd=4,
+                    bg='#208b3a',
                     command= lambda m=file: file_open(m.filename)
                 )
             else:
@@ -72,7 +72,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     text=text_btn,
                     padx=2,
                     pady=2,
-                    bd=1,
+                    bd=4,
                     highlightthickness=0,
                     font='timesnewroman 14',
                     command= lambda m=file: file_open(m.filename)
@@ -86,7 +86,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
 
         elif message=='voice':
             c+=1
-            filename=client.recv(1024).decode('latin-1')
+            filename=client.recv(1024).decode('utf-8')
             file_pas=filename.split('.')
             
             i=1
@@ -99,7 +99,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     check_v_file=False
 
             save_as = f"received voices/received_file_{i}.{file_pas[len(file_pas)-1]}"
-            client_check=client.recv(1024).decode('latin-1')
+            client_check=client.recv(1024).decode('utf-8')
             def played_voice(voice_object):
                 
                 voice_object.play_voice()
@@ -146,10 +146,10 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     text='sent voice',
                     padx=2,
                     pady=2,
-                    bd=1,
                     highlightthickness=0,
                     font='timesnewroman 14',
-                    bg='#5EE87D',
+                    bd=4,
+                    bg='#208b3a',
                     command= lambda m=voice , c=c-1: handel(m , c)
                 )
             else:
@@ -158,7 +158,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     text=text_btn,
                     padx=2,
                     pady=2,
-                    bd=1,
+                    bd=4,
                     highlightthickness=0,
                     font='timesnewroman 14',
                     command= lambda m=voice , c=c-1: handel(m , c)
@@ -170,7 +170,7 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
             # with open('log.txt', 'a') as file:
             #     file.write(f'{nickname}/{text_btn}/sent voice/\n')
         else:
-            client_check=client.recv(1024).decode('latin-1')
+            client_check=client.recv(1024).decode('utf-8')
             if message=="":
                 pass
             elif message!=nickname:
@@ -180,14 +180,14 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                     text=message,
                     padx=2,
                     pady=2,
-                    bd=1,
+                    bd=4,
                     font='timesnewroman 14',
                 )
                 txt.window_create(END, window=lbl)
                 txt.insert(END,'\n')
                 
                 if client_check==nickname:
-                    lbl.config(bg='#5EE87D' ,)
+                    lbl.config(bg='#208b3a')
                 else:
                     lbl.config(text=f'{client_check}:{message}')
                 
@@ -265,13 +265,11 @@ def write(entry , nickname , client): # Send function
 
         if "file" not  in client_message and 'voice' not in client_message:
             message= f'{client_message}'
-            client.send(f'{nickname}/message/{nickname}:{message}/{message}/'.encode('ascii'))
+            client.send(f'{nickname}/message/{nickname}:{message}/{message}/'.encode('utf-8'))
             time.sleep(0.05)
-            client.send(message.encode('ascii'))
+            client.send(message.encode('utf-8'))
             time.sleep(0.05)
-            client.send(nickname.encode('ascii'))
-            with open('client_messages.txt' , 'a') as writer:
-                writer.write(f'{message}\n')
+            client.send(nickname.encode('utf-8'))
             
             
                 
@@ -281,15 +279,15 @@ def write(entry , nickname , client): # Send function
 def send_file(nickname , client):
     filename = easygui.fileopenbox()
     if filename!=None:
-        client.send(f'{nickname}/message/file received successfully/sent file/'.encode('ascii'))
+        client.send(f'{nickname}/message/file received successfully/sent file/'.encode('utf-8'))
         time.sleep(0.1)
-        client.send('file'.encode('ascii'))
+        client.send('file'.encode('utf-8'))
         time.sleep(0.1)
     # Open the file in binary mode
         
-        client.send(filename.encode('ascii'))
+        client.send(filename.encode('utf-8'))
         time.sleep(0.1)
-        client.send(nickname.encode('ascii'))
+        client.send(nickname.encode('utf-8'))
         time.sleep(0.1)
         with open(filename, "rb") as file:
         # Read the file content

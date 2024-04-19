@@ -32,9 +32,9 @@ if not os.path.exists('sent voices/'):
 
 def record(btn_choose_voice , nickname):
     global recording_bol
-    client.send(f'{nickname}/message/file received successfully/sent voice/'.encode('ascii'))
+    client.send(f'{nickname}/message/file received successfully/sent voice/'.encode('utf-8'))
     time.sleep(0.1)
-    client.send('voice'.encode('ascii'))
+    client.send('voice'.encode('utf-8'))
     time.sleep(0.1)
     format = pyaudio.paInt16
     channels = 1
@@ -78,9 +78,9 @@ def record(btn_choose_voice , nickname):
 
     # Open the file in binary mode
     
-    client.send(filename.encode('ascii'))
+    client.send(filename.encode('utf-8'))
     time.sleep(0.1)
-    client.send(nickname.encode('ascii'))
+    client.send(nickname.encode('utf-8'))
     time.sleep(0.1)
     with open(filename, "rb") as file:
         # Read the file content
@@ -109,7 +109,7 @@ def handel(btn_choose_voice , nickname):
 
 def main():
     global check_nickname # function for login
-    with open('password_usernames.txt' , 'r') as f:
+    with open('password_usernames.txt' , 'r' , encoding='utf-8') as f:
         while True:
             line=f.readline()
             line1=line.split(':')
@@ -129,10 +129,10 @@ def main():
          
         nickname=user_input.get()
         if check_nickname == True:
-            client.send(nickname.encode('ascii'))
+            client.send(nickname.encode('utf-8'))
             
         
-            filename=client.recv(1024).decode('latin-1')
+            filename=client.recv(1024).decode('utf-8')
         # Receive the file size from the client
             file_size = int(float(client.recv(1024).decode('utf-8')))
 
@@ -166,7 +166,7 @@ def main():
 
         lable1 = Label(
             root,
-            bg='#FFB74D',
+            bg='#0096c7',
             fg=TEXT_COLOR,
             text=nickname,
             font='tahoma 14 bold italic',
@@ -176,20 +176,20 @@ def main():
         )
         lable1.grid(row=0)
 
-        txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#A6ACAF')
+        txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#ade8f4')
         txt.grid(row=1, column=0, columnspan=4 , sticky=(S,W))
         
         scrollbar = Scrollbar(txt)
         scrollbar.place(relheight=1, relx=0.974)
         
-        e = Entry(root, bg='#BF360C', font=FONT, width=60)
+        e = Entry(root, bg='#00b4d8', font=FONT, width=60)
         e.grid(row=2, column=0, sticky=(W,E))
     
         send = Button(
             master=root,
             text="✍",
             font='Helvetica 15 bold',
-            bg='#FF9800',
+            bg='#00b4d8',
             command=lambda : write(e , nickname , client ),
         )
 
@@ -200,7 +200,7 @@ def main():
             root,
             text="📂",
             font='Helvetica 15 bold',
-            bg='#FF9800',
+            bg='#00b4d8',
             command=lambda : send_file(nickname , client),
         )
 
@@ -210,13 +210,13 @@ def main():
             root,
             text="🎙",
             font='Helvetica 15 bold',
-            bg='#FF9800',
+            bg='#00b4d8',
             command=lambda : handel(choose_voice , nickname)
         )
 
         choose_voice.grid(row= 2 , column=3 , sticky=(W,E))
 
-        with open('log.txt' , 'r') as f:
+        with open('log.txt' , 'r' , encoding='utf-8') as f:
             while True:
                 line=f.readline()
                 line1=line.split('/')
@@ -229,9 +229,8 @@ def main():
                         text=f'{line1[3]}',
                         padx=2,
                         pady=2,
-                        bd=1,
-                        bg='#5EE87D',
-                        highlightthickness=0,
+                        bd=4,
+                        bg='#208b3a',
                         font='timesnewroman 14',
                     )
                     txt.window_create(END, window=lbl)
@@ -243,7 +242,7 @@ def main():
                         text=line1[2],
                         padx=2,
                         pady=2,
-                        bd=1,
+                        bd=4,
                         font='timesnewroman 14',
                     )
                     txt.window_create(END, window=lbl)
@@ -276,13 +275,28 @@ def sing_up(): # function for sing up
         elif user_input.get == '' or last_name_input.get()=='' or first_name_input.get()=='':
             lbl_error['text']='some filed is empty '
         else:
-            with open ('password_usernames.txt' , 'a') as f:
+            with open ('password_usernames.txt' , 'a' , encoding='utf-8') as f:
                 f.write(user_input.get() + ':'+  pass_input.get()+ '\n')
                 
 
             nickname=user_input.get()
             if check_nickname == True:
-                client.send(nickname.encode('ascii'))
+                client.send(nickname.encode('utf-8'))
+                
+            
+                filename=client.recv(1024).decode('utf-8')
+            # Receive the file size from the client
+                file_size = int(float(client.recv(1024).decode('utf-8')))
+
+            # Receive the file content from the client
+                file_data = b""
+                while len(file_data) < file_size:
+                    remaining_bytes = file_size - len(file_data)
+                    file_data += client.recv(remaining_bytes)
+
+                with open(filename, "wb") as file:
+                    file.write(file_data)
+
                 check_nickname=False
             # GUI
             root = Tk()
@@ -295,10 +309,9 @@ def sing_up(): # function for sing up
             window2.destroy() #close window
 
 
-
             lable1 = Label(
                 root,
-                bg='#FFB74D',
+                bg='#0096c7',
                 fg=TEXT_COLOR,
                 text=nickname,
                 font='tahoma 14 bold italic',
@@ -308,20 +321,20 @@ def sing_up(): # function for sing up
             )
             lable1.grid(row=0)
 
-            txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#A6ACAF')
+            txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#ade8f4')
             txt.grid(row=1, column=0, columnspan=4 , sticky=(S,W))
             
             scrollbar = Scrollbar(txt)
             scrollbar.place(relheight=1, relx=0.974)
             
-            e = Entry(root, bg='#BF360C', font=FONT, width=60)
+            e = Entry(root, bg='#00b4d8', font=FONT, width=60)
             e.grid(row=2, column=0, sticky=(W,E))
         
             send = Button(
                 master=root,
                 text="✍",
                 font='Helvetica 15 bold',
-                bg='#FF9800',
+                bg='#00b4d8',
                 command=lambda : write(e , nickname , client ),
             )
 
@@ -332,7 +345,7 @@ def sing_up(): # function for sing up
                 root,
                 text="📂",
                 font='Helvetica 15 bold',
-                bg='#FF9800',
+                bg='#00b4d8',
                 command=lambda : send_file(nickname , client),
             )
 
@@ -342,11 +355,43 @@ def sing_up(): # function for sing up
                 root,
                 text="🎙",
                 font='Helvetica 15 bold',
-                bg='#FF9800',
+                bg='#00b4d8',
                 command=lambda : handel(choose_voice , nickname)
             )
 
             choose_voice.grid(row= 2 , column=3 , sticky=(W,E))
+
+            with open('log.txt' , 'r' , encoding='utf-8') as f:
+                while True:
+                    line=f.readline()
+                    line1=line.split('/')
+                    if line =='':
+                        break
+                    elif line1[0]==nickname:
+                        txt.insert(END,'\n')
+                        lbl =Label(
+                            root,
+                            text=f'{line1[3]}',
+                            padx=2,
+                            pady=2,
+                            bd=4,
+                            bg='#208b3a',
+                            font='timesnewroman 14',
+                        )
+                        txt.window_create(END, window=lbl)
+                        txt.insert(END,'\n')
+                    else:
+                        txt.insert(END,'\n')
+                        lbl =Label(
+                            root,
+                            text=line1[2],
+                            padx=2,
+                            pady=2,
+                            bd=4,
+                            font='timesnewroman 14',
+                        )
+                        txt.window_create(END, window=lbl)
+                        txt.insert(END,'\n')
 
 
             receive_thread = threading.Thread(target=lambda : receive(nickname , txt , root , client , c , object))
@@ -354,9 +399,6 @@ def sing_up(): # function for sing up
 
 
             threading.Thread(target= lambda : handel(choose_voice , nickname)).start()
-
-
-
 
             root.mainloop()
     
