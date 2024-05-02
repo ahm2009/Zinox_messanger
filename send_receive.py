@@ -51,7 +51,8 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                 file=Received(save_as , file_size , file_data)
                 file.receive_file()
             object_list.append(file)
-            
+            txt.config(state=NORMAL)
+
             txt.insert(END,'\n')
             text_btn=f"File received successfully."
             if client_check==nickname:
@@ -79,6 +80,8 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                 )
             txt.window_create(END, window=button)
             txt.insert(END,'\n')
+            txt.config(state=DISABLED)
+
 
             # with open('log.txt', 'a') as file:
             #     file.write(f'{nickname}/{text_btn}/sent file/\n')
@@ -137,7 +140,8 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                 voice=Received(save_as , file_size , file_data)
                 voice.receive_voice()
             object_list.append(voice)
-                
+            txt.config(state=NORMAL)
+
             txt.insert(END,'\n')
             text_btn=f"voice received successfully."
             if client_check==nickname:
@@ -166,6 +170,8 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
             
             txt.window_create(END, window=button)
             txt.insert(END,'\n')
+            txt.config(state=DISABLED)
+
             
             # with open('log.txt', 'a') as file:
             #     file.write(f'{nickname}/{text_btn}/sent voice/\n')
@@ -174,6 +180,8 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
             if message=="":
                 pass
             elif message!=nickname:
+                txt.config(state=NORMAL)
+
                 txt.insert(END,'\n')
                 lbl =Label(
                     root,
@@ -188,9 +196,12 @@ def receive(nickname , txt , root , client , c , object_list):  # Receive functi
                 
                 if client_check==nickname:
                     lbl.config(bg='#208b3a')
+                elif client_check=='..':
+                    lbl.config(text=message ,  bg='#ade8f4')
                 else:
                     lbl.config(text=f'{client_check}:{message}')
-                
+                txt.config(state=DISABLED)
+
                 # with open('log.txt', 'a') as file:
                 #     file.write(f'{nickname}/{client_check}:{message}/{message}/\n')
 

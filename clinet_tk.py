@@ -8,7 +8,6 @@ import wave
 import pyaudio
 import os
 import time
-from pynput import keyboard as keyboardnput
 from send_receive import *
 c=0
 step_message=1.0
@@ -178,6 +177,7 @@ def main():
 
         txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#ade8f4')
         txt.grid(row=1, column=0, columnspan=4 , sticky=(S,W))
+        txt.config(state=DISABLED)
         
         scrollbar = Scrollbar(txt)
         scrollbar.place(relheight=1, relx=0.974)
@@ -218,6 +218,7 @@ def main():
 
         with open('log.txt' , 'r' , encoding='utf-8') as f:
             while True:
+                txt.config(state=NORMAL)
                 line=f.readline()
                 line1=line.split('/')
                 if line =='':
@@ -247,7 +248,7 @@ def main():
                     )
                     txt.window_create(END, window=lbl)
                     txt.insert(END,'\n')
-
+            txt.config(state=DISABLED)
 
         receive_thread = threading.Thread(target=lambda : receive(nickname , txt , root , client , c , object))
         receive_thread.start()
@@ -323,7 +324,8 @@ def sing_up(): # function for sing up
 
             txt = Text(root, fg=TEXT_COLOR, font='times 16 italic bold',width=85 , bg='#ade8f4')
             txt.grid(row=1, column=0, columnspan=4 , sticky=(S,W))
-            
+            txt.config(state=DISABLED)
+
             scrollbar = Scrollbar(txt)
             scrollbar.place(relheight=1, relx=0.974)
             
@@ -363,6 +365,8 @@ def sing_up(): # function for sing up
 
             with open('log.txt' , 'r' , encoding='utf-8') as f:
                 while True:
+                    txt.config(state=NORMAL)
+
                     line=f.readline()
                     line1=line.split('/')
                     if line =='':
@@ -392,6 +396,7 @@ def sing_up(): # function for sing up
                         )
                         txt.window_create(END, window=lbl)
                         txt.insert(END,'\n')
+                txt.config(state=DISABLED)
 
 
             receive_thread = threading.Thread(target=lambda : receive(nickname , txt , root , client , c , object))
@@ -480,7 +485,7 @@ def sing_up(): # function for sing up
 
     sing_up=Button(
         master=window2,
-        text='sing up',
+        text='sign up',
         width=40,
         height=2,
         command=main_sing
@@ -558,7 +563,7 @@ login=Button(
 
 btn_signup=Button(
    master=window,
-   text='sing up',
+   text='sige up',
    width=20,
    command=sing_up
 )
