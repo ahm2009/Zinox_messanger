@@ -44,36 +44,39 @@ def handle(client):
 
 def receive():
     while True:
-        client, address = server.accept()
-        print(f'connected with {str(address)}')
+        try:
+            client, address = server.accept()
+            print(f'connected with {str(address)}')
 
-        # client.send('NICK'.encode('utf-8'))
-        nickname=client.recv(1024).decode('utf-8')
-        time.sleep(0.05)
-        client.send('log.txt'.encode('utf-8'))
-        time.sleep(0.1)
-        with open('log.txt', "rb") as file:
-        # Read the file content
-            file_data = file.read()
+            # client.send('NICK'.encode('utf-8'))
+            nickname=client.recv(1024).decode('utf-8')
+            time.sleep(0.05)
+            client.send('log.txt'.encode('utf-8'))
+            time.sleep(0.1)
+            with open('log.txt', "rb") as file:
+            # Read the file content
+                file_data = file.read()
 
-        client.send(str(len(file_data)).encode('utf-8'))
-        time.sleep(0.1)
+            client.send(str(len(file_data)).encode('utf-8'))
+            time.sleep(0.1)
 
-    # Send the file content to the client
-        client.send(file_data)
-        time.sleep(0.1)
-        broadcast(f'{nickname} joined the chat!'.encode('utf-8'))
-        broadcast('..'.encode('utf-8'))
+        # Send the file content to the client
+            client.send(file_data)
+            time.sleep(0.1)
+            broadcast(f'{nickname} joined the chat!'.encode('utf-8'))
+            broadcast('..'.encode('utf-8'))
 
-        nicknames.append(nickname)
-        clients.append(client)
+            nicknames.append(nickname)
+            clients.append(client)
 
-        print(f'NICKname of the client is {nickname}!')
-        # broadcast(f'{nickname} joined the chat!'.encode('utf-8'))
-        # client.send("Connected to the server!".encode('utf-8'))
+            print(f'NICKname of the client is {nickname}!')
+            # broadcast(f'{nickname} joined the chat!'.encode('utf-8'))
+            # client.send("Connected to the server!".encode('utf-8'))
 
 
-        thread = threading.Thread(target=handle, args=(client,))
-        thread.start()
+            thread = threading.Thread(target=handle, args=(client,))
+            thread.start()
+        except:
+            pass
 print('server is listening...')
 receive()

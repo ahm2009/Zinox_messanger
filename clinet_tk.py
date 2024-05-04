@@ -12,7 +12,6 @@ from send_receive import *
 c=0
 step_message=1.0
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('127.0.0.1',55555))
 
 window=Tk()
 save_as_list=[]
@@ -111,12 +110,12 @@ def main():
     with open('password_usernames.txt' , 'r' , encoding='utf-8') as f:
         while True:
             line=f.readline()
-            line1=line.split(':')
+            line1=line[:-1].split(':')
             if line == '':
                 check_pass=False
                 lbl_error['text']='password or username is not correct'
                 break
-            elif pass_input.get() in line1[1] and user_input.get() in line1[0] :
+            elif pass_input.get() == line1[1] and user_input.get() == line1[0] :
                 check_pass=True
                 break
 
@@ -125,7 +124,8 @@ def main():
         pass_input.delete(0, END)
     
     elif check_pass == True:
-         
+        client.connect(('127.0.0.1',55555))
+
         nickname=user_input.get()
         if check_nickname == True:
             client.send(nickname.encode('utf-8'))
@@ -261,7 +261,7 @@ def main():
 
         root.mainloop()
 
-def sing_up(): # function for sing up
+def sign_up(): # function for sing up
     window2=Tk()
     window.destroy()
 
@@ -279,6 +279,7 @@ def sing_up(): # function for sing up
             with open ('password_usernames.txt' , 'a' , encoding='utf-8') as f:
                 f.write(user_input.get() + ':'+  pass_input.get()+ '\n')
                 
+            client.connect(('127.0.0.1',55555))
 
             nickname=user_input.get()
             if check_nickname == True:
@@ -483,7 +484,7 @@ def sing_up(): # function for sing up
         font="Helvetica 15",
     )
 
-    sing_up=Button(
+    sign_up=Button(
         master=window2,
         text='sign up',
         width=40,
@@ -512,7 +513,7 @@ def sing_up(): # function for sing up
     pass_input.grid(row=3 , column= 1 , pady=10 , padx=(10 , 50))
     lbl_password2.grid(row=4 , column=0 , sticky=(E,W))
     pass_input2.grid(row=4 , column= 1 , pady=10 , padx=(10 , 50))
-    sing_up.grid(row = 5 , column=0 , columnspan=2 ,)
+    sign_up.grid(row = 5 , column=0 , columnspan=2 ,)
     lbl_error.grid(row = 6 , column=0 , columnspan=2 , sticky=(E,W) , pady=30)
     btn_make_password.grid(row =7 , column=0 , columnspan=2 , pady=10)
 
@@ -563,9 +564,9 @@ login=Button(
 
 btn_signup=Button(
    master=window,
-   text='sige up',
+   text='sign up',
    width=20,
-   command=sing_up
+   command=sign_up
 )
 
 
